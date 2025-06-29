@@ -35,7 +35,7 @@ public class Plugin : BaseUnityPlugin {
   private static float time = 0f;
   private static string timeString = "00:00:00.000";
 
-  private static Vector2 timerPos = new(1725, 30);
+  private static Vector2 timerPos = new(1710, 30);
 
   private static float timerStartDelay = -1;
 
