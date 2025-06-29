@@ -10,7 +10,7 @@ using UnityEngine;
 
 using System;
 
-[BepInPlugin("com.turtledsr.peaktimer", "Peak Timer", "0.0.1.0")]
+[BepInPlugin("com.turtledsr.peaktimer", "Peak Timer", "1.0.0.0")]
 [BepInProcess("Peak.exe")]
 public class Plugin : BaseUnityPlugin {
   internal static new ManualLogSource Logger;
