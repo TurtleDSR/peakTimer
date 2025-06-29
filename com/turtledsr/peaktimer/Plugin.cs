@@ -176,7 +176,7 @@ public class Plugin : BaseUnityPlugin {
     int min = (int) (timeLeft / 60);
     timeLeft -= min * 60;
     int sec = (int) timeLeft;
-    int ms = (int) ((timeLeft - Math.Truncate(timeLeft)) * 100);
+    int ms = (int) ((timeLeft - Math.Truncate(timeLeft)) * 1000);
 
     return $"{hrs.ToString("00")}:{min.ToString("00")}:{sec.ToString("00")}.{ms.ToString("000")}";
   } 
