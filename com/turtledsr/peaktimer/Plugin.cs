@@ -33,9 +33,9 @@ public class Plugin : BaseUnityPlugin {
   private static int goalPoint;
 
   private static float time = 0f;
-  private static string timeString = "00:00:00.00";
+  private static string timeString = "00:00:00.000";
 
-  private static Vector2 timerPos = new(1725, 10);
+  private static Vector2 timerPos = new(1725, 30);
 
   private static float timerStartDelay = -1;
 
@@ -103,7 +103,7 @@ public class Plugin : BaseUnityPlugin {
 
     mountainProgress = GameObject.Find("MountainProgress");
     timing = false;
-    timeString = "00:00:00.00";
+    timeString = "00:00:00.000";
     time = 0f;
 
     if (mountainProgress != null) {
@@ -178,7 +178,7 @@ public class Plugin : BaseUnityPlugin {
     int sec = (int) timeLeft;
     int ms = (int) ((timeLeft - Math.Truncate(timeLeft)) * 100);
 
-    return $"{hrs.ToString("00")}:{min.ToString("00")}:{sec.ToString("00")}.{ms.ToString("00")}";
+    return $"{hrs.ToString("00")}:{min.ToString("00")}:{sec.ToString("00")}.{ms.ToString("000")}";
   } 
 
   [HarmonyPatch(typeof(PauseOptionsMenu), "OnOpen")]
