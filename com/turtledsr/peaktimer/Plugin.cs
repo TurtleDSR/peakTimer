@@ -1,4 +1,4 @@
-﻿namespace TIMER.com.turtledsr.peaktimer;
+﻿namespace peaktimer;
 
 using BepInEx;
 using BepInEx.Logging;
@@ -10,12 +10,15 @@ using UnityEngine;
 
 using System;
 
-[BepInPlugin("com.turtledsr.peaktimer", "Peak Timer", "1.0.1.0")]
+[BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Peak.exe")]
+
+[BepInDependency("BepInEx-BepInExPack_PEAK-5.4.2403")] //require bepinexpack
 public class Plugin : BaseUnityPlugin {
   internal static new ManualLogSource Logger;
 
   private static ConfigEntry<int> goalConfig;
+  private static ConfigEntry<int> startConfig;
   private static ConfigEntry<bool> timingMethodConfig; //true = igt : false = rta
 
   private static GameObject mountainProgress;
@@ -26,24 +29,32 @@ public class Plugin : BaseUnityPlugin {
   private static Campfire snowCampfire;
   private static Campfire volcanoCampfire;
 
-  private static bool timing = false;
+  private static bool timing;
 
   private static bool timingMethod;
 
   private static int goalPoint;
+  private static int startPoint;
 
-  private static float time = 0f;
-  private static string timeString = "00:00:00.000";
+  private static float time;
+  private static string timeString;
+  private static string fpsString;
 
-  private static Vector2 timerPos = new(1710, 50);
+  private static Vector2 timerPos;
+  private static Vector2 fpsPos;
 
-  private static float timerStartDelay = -1;
+  private static float timerStartDelay;
 
   private void Awake() {
+    Init();
+
     Logger = base.Logger;
 
     var harmony = new Harmony("com.turtledsr.peaktimer");
     harmony.PatchAll();
+
+    startConfig = Config.Bind("Timing", "Start", 1, "Start point for the timer, 1 = Blink ... 5 = Volcano Campfire");
+    startPoint = startConfig.Value;
 
     goalConfig = Config.Bind("Timing", "Goal", 5, "Goal point for the timer, 1 = Tropics ... 5 = Peak");
     goalPoint = goalConfig.Value;
@@ -62,9 +73,12 @@ public class Plugin : BaseUnityPlugin {
     style.normal.textColor = Color.white;
 
     GUI.Label(new Rect(timerPos.x, timerPos.y, 200, 30), timeString, style);
+    GUI.Label(new Rect(fpsPos.x, fpsPos.y, 200, 30), fpsString, style);
   }
 
   private void Update() {
+    fpsString = $"FPS: {Math.Floor(1 / Time.deltaTime)}";
+
     if(timerStartDelay > 0) {
       timerStartDelay -= Time.deltaTime;
 
@@ -94,7 +108,32 @@ public class Plugin : BaseUnityPlugin {
           break;
         default: break;
       }
+    } else if(!timing && mountainProgress != null) {
+      switch (startPoint) {
+        case 2:
+          if(beachCampfire != null && beachCampfire.state != Campfire.FireState.Off) {timing = true;}
+          break;
+        case 3:
+          if(jungleCampfire != null && jungleCampfire.state != Campfire.FireState.Off) {timing = true;}
+          break;
+        case 4:
+          if(snowCampfire != null && snowCampfire.state != Campfire.FireState.Off) {timing = true;}
+          break;
+        case 5:
+          if(volcanoCampfire != null && volcanoCampfire.state != Campfire.FireState.Off) {timing = true;}
+          break;
+        default: break;
+      }
     }
+  }
+
+  private void Init() {
+    timing = false;
+    time = 0f;
+    timeString = "00:00:00.000";
+    timerPos = new (1710, 60);
+    fpsPos = new (1710, 30);
+    timerStartDelay = -1;
   }
 
   private static void Bind() {
@@ -103,14 +142,15 @@ public class Plugin : BaseUnityPlugin {
 
     mountainProgress = GameObject.Find("MountainProgress");
     timing = false;
-    timeString = "00:00:00.000";
-    time = 0f;
 
     if (mountainProgress != null) {
+      timeString = "00:00:00.000";
+      time = 0f;
+
       Logger.LogInfo("Bound MountainProgress!");
       progressScript = mountainProgress.GetComponentAtIndex(1);
 
-      timerStartDelay = 6f;
+      if(startPoint == 1) {timerStartDelay = 6f;}
 
       if(progressScript == null) {
         Logger.LogWarning("Couldn't bind progressScript");
@@ -176,7 +216,7 @@ public class Plugin : BaseUnityPlugin {
     int min = (int) (timeLeft / 60);
     timeLeft -= min * 60;
     int sec = (int) timeLeft;
-    int ms = (int) ((timeLeft - Math.Truncate(timeLeft)) * 100);
+    int ms = (int) ((timeLeft - Math.Truncate(timeLeft)) * 1000);
 
     return $"{hrs.ToString("00")}:{min.ToString("00")}:{sec.ToString("00")}.{ms.ToString("000")}";
   } 

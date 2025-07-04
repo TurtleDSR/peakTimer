@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeakTimer", "PeakTimer.csproj", "{0E4B9C28-1FF4-4769-0718-0CCA28C111A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeakTimer", "com\turtledsr\peaktimer\PeakTimer.csproj", "{0E4B9C28-1FF4-4769-0718-0CCA28C111A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
