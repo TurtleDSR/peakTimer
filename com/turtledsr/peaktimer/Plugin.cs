@@ -13,7 +13,6 @@ using System;
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Peak.exe")]
 
-[BepInDependency("BepInEx-BepInExPack_PEAK-5.4.2403")] //require bepinexpack
 public class Plugin : BaseUnityPlugin {
   internal static new ManualLogSource Logger;
 
