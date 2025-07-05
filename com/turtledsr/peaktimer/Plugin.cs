@@ -40,7 +40,6 @@ public class Plugin : BaseUnityPlugin {
   private static string fpsString;
 
   private static Vector2 timerPos;
-  private static Vector2 fpsPos;
 
   private static float timerStartDelay;
 
@@ -72,7 +71,6 @@ public class Plugin : BaseUnityPlugin {
     style.normal.textColor = Color.white;
 
     GUI.Label(new Rect(timerPos.x, timerPos.y, 200, 30), timeString, style);
-    GUI.Label(new Rect(fpsPos.x, fpsPos.y, 200, 30), fpsString, style);
   }
 
   private void Update() {
@@ -130,8 +128,7 @@ public class Plugin : BaseUnityPlugin {
     timing = false;
     time = 0f;
     timeString = "00:00:00.000";
-    timerPos = new (1710, 60);
-    fpsPos = new (1710, 30);
+    timerPos = new (1710, 10);
     timerStartDelay = -1;
   }
 
