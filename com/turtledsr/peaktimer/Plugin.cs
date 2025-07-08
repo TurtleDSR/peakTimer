@@ -16,9 +16,9 @@ using System;
 public class Plugin : BaseUnityPlugin {
   internal static new ManualLogSource Logger;
 
-  private static ConfigEntry<int> goalConfig;
-  private static ConfigEntry<int> startConfig;
-  private static ConfigEntry<bool> timingMethodConfig; //true = igt : false = rta
+  private static ConfigEntry<string> goalConfig;
+  private static ConfigEntry<string> startConfig;
+  private static ConfigEntry<string> timingMethodConfig; //true = igt : false = rta
 
   private static GameObject mountainProgress;
   private static Component progressScript;
@@ -30,14 +30,13 @@ public class Plugin : BaseUnityPlugin {
 
   private static bool timing;
 
-  private static bool timingMethod;
+  private static string timingMethod;
 
-  private static int goalPoint;
-  private static int startPoint;
+  private static string goalPoint;
+  private static string startPoint;
 
   private static float time;
   private static string timeString;
-  private static string fpsString;
 
   private static Vector2 timerPos;
 
@@ -51,14 +50,26 @@ public class Plugin : BaseUnityPlugin {
     var harmony = new Harmony("com.turtledsr.peaktimer");
     harmony.PatchAll();
 
-    startConfig = Config.Bind("Timing", "Start", 1, "Start point for the timer, 1 = Blink ... 5 = Volcano Campfire");
+    startConfig = Config.Bind("Timing", "Start", "Shore", new ConfigDescription("Start point for the timer", new AcceptableValueList<string>("Shore", "Jungle", "Snow", "Volcano")));
     startPoint = startConfig.Value;
 
-    goalConfig = Config.Bind("Timing", "Goal", 5, "Goal point for the timer, 1 = Tropics ... 5 = Peak");
+    startConfig.SettingChanged += delegate {
+      startPoint = startConfig.Value;
+    };
+
+    goalConfig = Config.Bind("Timing", "Goal", "Peak", new ConfigDescription("Goal point for the timer", new AcceptableValueList<string>("Jungle", "Snow", "Volcano", "Peak")));
     goalPoint = goalConfig.Value;
 
-    timingMethodConfig = Config.Bind("Timing", "Timing Method", false, "true = igt : false = rta");
+    goalConfig.SettingChanged += delegate {
+      goalPoint = goalConfig.Value;
+    };
+
+    timingMethodConfig = Config.Bind("Timing", "Timing Method", "RTA", new ConfigDescription("Timing method for the timer", new AcceptableValueList<string>("RTA", "IGT")));
     timingMethod = timingMethodConfig.Value;
+
+    timingMethodConfig.SettingChanged += delegate {
+      timingMethod = timingMethodConfig.Value;
+    };
 
     Logger.LogInfo("Peak Timer is loaded!");
   }
@@ -74,8 +85,6 @@ public class Plugin : BaseUnityPlugin {
   }
 
   private void Update() {
-    fpsString = $"FPS: {Math.Floor(1 / Time.deltaTime)}";
-
     if(timerStartDelay > 0) {
       timerStartDelay -= Time.deltaTime;
 
@@ -91,32 +100,32 @@ public class Plugin : BaseUnityPlugin {
       timeString = GetTimeString();
 
       switch (goalPoint) {
-        case 1:
+        case "Jungle":
           if(beachCampfire != null && beachCampfire.state != Campfire.FireState.Off) {timing = false;}
           break;
-        case 2:
+        case "Snow":
           if(jungleCampfire != null && jungleCampfire.state != Campfire.FireState.Off) {timing = false;}
           break;
-        case 3:
+        case "Volcano":
           if(snowCampfire != null && snowCampfire.state != Campfire.FireState.Off) {timing = false;}
           break;
-        case 4:
+        case "Peak":
           if(volcanoCampfire != null && volcanoCampfire.state != Campfire.FireState.Off) {timing = false;}
           break;
         default: break;
       }
     } else if(!timing && mountainProgress != null) {
       switch (startPoint) {
-        case 2:
+        case "Shore":
           if(beachCampfire != null && beachCampfire.state != Campfire.FireState.Off) {timing = true;}
           break;
-        case 3:
+        case "Jungle":
           if(jungleCampfire != null && jungleCampfire.state != Campfire.FireState.Off) {timing = true;}
           break;
-        case 4:
+        case "Snow":
           if(snowCampfire != null && snowCampfire.state != Campfire.FireState.Off) {timing = true;}
           break;
-        case 5:
+        case "Volcano":
           if(volcanoCampfire != null && volcanoCampfire.state != Campfire.FireState.Off) {timing = true;}
           break;
         default: break;
@@ -146,7 +155,7 @@ public class Plugin : BaseUnityPlugin {
       Logger.LogInfo("Bound MountainProgress!");
       progressScript = mountainProgress.GetComponentAtIndex(1);
 
-      if(startPoint == 1) {timerStartDelay = 6f;}
+      if(startPoint.Equals("Shore")) {timerStartDelay = 6f;}
 
       if(progressScript == null) {
         Logger.LogWarning("Couldn't bind progressScript");
@@ -220,7 +229,7 @@ public class Plugin : BaseUnityPlugin {
   [HarmonyPatch(typeof(PauseOptionsMenu), "OnOpen")]
   static class PauseoptionsMenu_OnOpen_Patch {
     static bool Prefix() {
-      if(timingMethod) { //if using igt pause the timer
+      if(timingMethod.Equals("IGT")) { //if using igt pause the timer
         Logger.LogInfo("Timer Paused (GAME PAUSE)");
         timing = false;
       }
@@ -231,7 +240,7 @@ public class Plugin : BaseUnityPlugin {
   [HarmonyPatch(typeof(PauseOptionsMenu), "OnClose")]
   static class PauseoptionsMenu_OnClose_Patch {
     static bool Prefix() {
-      if(timingMethod) { //if using igt pause the timer
+      if(timingMethod.Equals("IGT")) { //if using igt pause the timer
         Logger.LogInfo("Timer Unpaused (GAME UNPAUSE)");
         timing = true;
       }
@@ -260,7 +269,7 @@ public class Plugin : BaseUnityPlugin {
   [HarmonyPatch(typeof(GlobalEvents), "TriggerRunEnded")]
   static class GlobalEvents_TriggerRunEnded_Patch {
     static bool Prefix() {
-      if(goalPoint == 5) {
+      if(goalPoint.Equals("Peak")) {
         Logger.LogInfo("Run Ended By game End");
         timing = false;
       }
