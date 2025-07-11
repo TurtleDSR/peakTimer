@@ -92,12 +92,15 @@ public class Plugin : BaseUnityPlugin {
         resetConfigs = true;
       }
 
-      Config.Remove(versionDef);
       Config.Save();
+      Config.Reload();
     } else {
       Logger.LogInfo("New mod version detected: Resetting config");
       resetConfigs = true;
     }
+
+    versionConfig = null;
+    Config.Remove(versionDef);
 
     Config.Reload();
 
@@ -202,7 +205,7 @@ public class Plugin : BaseUnityPlugin {
     timing = false;
     time = 0f;
     timeString = "00:00:00.000";
-    timerPos = new (1710, 10);
+    timerPos = new Vector2(Screen.width - 210, 10);
     timerStartDelay = -1;
   }
 
