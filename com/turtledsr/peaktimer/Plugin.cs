@@ -205,7 +205,7 @@ public class Plugin : BaseUnityPlugin {
     timing = false;
     time = 0f;
     timeString = "00:00:00.000";
-    timerPos = new Vector2(Screen.width - 210, 10);
+    timerPos = new Vector2(Screen.currentResolution.width - 210, 10);
     timerStartDelay = -1;
   }
 
